@@ -125,7 +125,7 @@ export default function (server: Server) {
         throw new InvalidRequestError(`Could not index record: ${err}`)
       }
     }
-    await db.setRepoRoot(did, repo.cid)
+    await db.setRepoRoot(did, repo.cid, prevCid)
 
     return {
       encoding: 'application/json',
@@ -153,6 +153,7 @@ export default function (server: Server) {
         `${did} is not a registered repo on this server`,
       )
     }
+    const prev = repo.cid
     const tid = await repo.getCollection(type).createRecord(input.body)
     const uri = new AdxUri(`${did}/${type}/${tid.toString()}`)
     try {
@@ -166,7 +167,7 @@ export default function (server: Server) {
         throw new InvalidRequestError(`Could not index record: ${err}`)
       }
     }
-    await db.setRepoRoot(did, repo.cid)
+    await db.setRepoRoot(did, repo.cid, prev)
     // @TODO update subscribers
 
     return {
@@ -195,6 +196,7 @@ export default function (server: Server) {
         `${did} is not a registered repo on this server`,
       )
     }
+    const prev = repo.cid
     await repo.getCollection(type).updateRecord(TID.fromStr(tid), input.body)
     const uri = new AdxUri(`${did}/${type}/${tid.toString()}`)
     try {
@@ -208,7 +210,7 @@ export default function (server: Server) {
         throw new InvalidRequestError(`Could not index record: ${err}`)
       }
     }
-    await db.setRepoRoot(did, repo.cid)
+    await db.setRepoRoot(did, repo.cid, prev)
     // @TODO update subscribers
     return {
       encoding: 'application/json',
@@ -228,6 +230,7 @@ export default function (server: Server) {
         `${did} is not a registered repo on this server`,
       )
     }
+    const prev = repo.cid
     await repo.getCollection(type).deleteRecord(TID.fromStr(tid))
     const uri = new AdxUri(`${did}/${type}/${tid.toString()}`)
     try {
@@ -238,7 +241,7 @@ export default function (server: Server) {
         'failed to delete indexed record',
       )
     }
-    await db.setRepoRoot(did, repo.cid)
+    await db.setRepoRoot(did, repo.cid, prev)
     // @TODO update subscribers
   })
 }

@@ -50,8 +50,8 @@ const runServer = (
   app.use(cors())
   app.use(loggerMiddleware)
 
-  const locals: Locals = {
-    logger: httpLogger,
+  const locals: Omit<Locals, 'logger'> = {
+    // logger: httpLogger,
     blockstore,
     db,
     keypair,

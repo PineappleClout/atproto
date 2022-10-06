@@ -92,17 +92,33 @@ export class Database {
     return CID.parse(found.root)
   }
 
-  async setRepoRoot(did: string, root: CID) {
+  async setRepoRoot(did: string, root: CID, prev: CID | null) {
     log.debug({ did, root: root.toString() }, 'updating repo root')
-    const table = this.db.getRepository(RepoRoot)
-    let newRoot = await table.findOneBy({ did })
-    if (newRoot === null) {
-      newRoot = new RepoRoot()
-      newRoot.did = did
+    if (prev === null) {
+      await this.db
+        .createQueryBuilder()
+        .insert()
+        .into(RepoRoot)
+        .values({ did, root: root.toString() })
+        .execute()
+    } else {
+      const res = await this.db
+        .createQueryBuilder()
+        .update(RepoRoot)
+        .set({ root: root.toString() })
+        .where('did = :did', { did })
+        .andWhere('root = :prev', { prev: prev.toString() })
+        .execute()
+      if (!res.affected || res.affected === 0) {
+        throw new Error(
+          `could not update repo root for ${did}: prev did not match: ${prev.toString()}`,
+        )
+      }
     }
-    newRoot.root = root.toString()
-    await table.save(newRoot)
-    log.info({ did, root: root.toString() }, 'updated repo root')
+    log.info(
+      { did, root: root.toString(), prev: prev?.toString() },
+      'updated repo root',
+    )
   }
 
   async getUser(

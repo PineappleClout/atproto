@@ -71,6 +71,6 @@ export default function (server: Server) {
 
     // await subscriptions.notifySubscribers(db, repo)
 
-    await db.setRepoRoot(did, repo.cid)
+    // await db.setRepoRoot(did, repo.cid)
   })
 }

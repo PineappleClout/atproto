@@ -127,7 +127,7 @@ export default function (server: Server) {
 
     const authStore = locals.getAuthstore(res, did)
     const repo = await Repo.create(blockstore, did, authStore)
-    await db.setRepoRoot(did, repo.cid)
+    await db.setRepoRoot(did, repo.cid, null)
 
     if (isTestUser && config.testNameRegistry) {
       config.testNameRegistry[username] = did
